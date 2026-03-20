@@ -6,7 +6,7 @@ import { Client, Account, Databases, Storage, ID, Query } from 'appwrite'
 
 // On the server (during build/SSR), use the absolute IP. In the browser, use the proxy path.
 const AppwriteEndpoint = typeof window !== "undefined"
-  ? (process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || "/appwrite")
+  ? (window.location.origin + "/appwrite")
   : (process.env.APPWRITE_ENDPOINT || "http://15.235.146.250:8081/v1");
 
 const client = new Client()
