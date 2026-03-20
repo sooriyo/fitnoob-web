@@ -4,13 +4,14 @@ import { Entry } from "@/lib/types";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { date: string } }
+  { params }: { params: Promise<{ date: string }> }
 ) {
   try {
+    const { date } = await params;
     const user = await account.get();
     const result = await databases.listDocuments(DB_ID, ENTRIES_COL, [
       Query.equal("user_id", user.$id),
-      Query.equal("date", params.date),
+      Query.equal("date", date),
     ]);
 
     if (result.total === 0) {
@@ -25,15 +26,16 @@ export async function GET(
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { date: string } }
+  { params }: { params: Promise<{ date: string }> }
 ) {
   try {
+    const { date } = await params;
     const user = await account.get();
     const data = await req.json();
 
     const existingResult = await databases.listDocuments(DB_ID, ENTRIES_COL, [
       Query.equal("user_id", user.$id),
-      Query.equal("date", params.date),
+      Query.equal("date", date),
     ]);
 
     if (existingResult.total === 0) {
@@ -54,20 +56,21 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { date: string } }
+  { params }: { params: Promise<{ date: string }> }
 ) {
   try {
+    const { date } = await params;
     const user = await account.get();
     const result = await databases.listDocuments(DB_ID, ENTRIES_COL, [
       Query.equal("user_id", user.$id),
-      Query.equal("date", params.date),
+      Query.equal("date", date),
     ]);
 
     if (result.total === 0) {
       return NextResponse.json({ error: "Entry not found" }, { status: 404 });
     }
 
-    const doc = existingResult.documents[0];
+    const doc = result.documents[0];
     await databases.deleteDocument(DB_ID, ENTRIES_COL, doc.$id);
 
     return NextResponse.json({ success: true });
