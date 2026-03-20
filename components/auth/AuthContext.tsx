@@ -50,9 +50,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
-    // Ping Appwrite server to verify setup
+    // Ping Appwrite server to verify setup (only if method exists)
     // @ts-ignore
-    client.ping().catch((err: any) => console.log('Ping failed:', err));
+    if (typeof client.ping === 'function') {
+      // @ts-ignore
+      client.ping().catch((err: any) => console.log('Ping failed:', err));
+    }
     fetchUserAndProfile();
   }, [pathname]);
 
