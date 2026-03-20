@@ -72,6 +72,7 @@ async function setup() {
       }
       
       // Indexes
+      // @ts-ignore
       await databases.createIndex(DB_ID, ENTRIES_COL, 'idx_user_date', 'key', ['user_id', 'date'], ['ASC', 'ASC']);
       console.log('  🎯 Index created: user_id + date');
 
@@ -111,6 +112,7 @@ async function setup() {
         console.log(`  🔹 Attribute created: ${attr.key}`);
       }
 
+      // @ts-ignore
       await databases.createIndex(DB_ID, PROFILE_COL, 'idx_user', 'unique', ['user_id'], ['ASC']);
       console.log('  🎯 Unique Index created: user_id');
 
