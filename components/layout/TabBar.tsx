@@ -29,7 +29,7 @@ export default function TabBar() {
       )
     },
     {
-      label: "Nutrition",
+      label: "Fuel",
       href: "/nutrition",
       icon: (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -42,10 +42,11 @@ export default function TabBar() {
       href: "/log",
       icon: (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="4" r="2"/><path d="M15 8a1 1 0 0 0-1-1H10a1 1 0 0 0-1 1v2a1 1 0 0 1-1 1H7M15 8v4a1 1 0 0 0 1 1h2M9 15v4a1 1 0 0 0 1 1h2"/><path d="M15 13l-3-4-2 2-3-4"/>
+          <path d="m6.5 6.5 11 11"/><path d="m21 21-1-1"/><path d="m3 3 1 1"/><path d="m18 22 4-4"/><path d="m2 6 4-4"/><path d="m3 10 7-7"/><path d="m14 21 7-7"/>
         </svg>
       )
     }
+
   ];
 
   return (

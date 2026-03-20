@@ -116,8 +116,9 @@ export default function NutritionPage() {
         date: selectedDate
       });
       await fetchData();
+      alert("Fuel Logged Successfully");
     } catch (e: any) {
-      alert("Error: " + e.message + ". Please ensure the 'food_logs' collection is created in Appwrite.");
+      alert(e.message);
     } finally {
       setSaving(false);
       setSelectedFood(null);
@@ -153,7 +154,7 @@ export default function NutritionPage() {
   };
 
   const deleteLog = async (id: string) => {
-    if (!confirm("Remove this log?")) return;
+    if (!confirm("Remove this entry?")) return;
     try {
       await databases.deleteDocument(DB_ID, FOOD_LOGS_COL, id);
       await fetchData();
@@ -163,11 +164,11 @@ export default function NutritionPage() {
   return (
     <div className="space-y-12 pb-32 animate-in fade-in duration-700">
       
-      {/* ── DAILY TOTALS ──────────────── */}
+      {/* ── DAILY INTELLIGENCE ──────────────── */}
       <section className="sticky top-0 z-20 pt-4 bg-bg/80 backdrop-blur-xl -mx-4 px-4 pb-6 border-b border-border/20">
         <div className="flex justify-between items-end mb-8">
            <div className="space-y-1">
-             <span className="text-[10px] mono uppercase text-accent font-black tracking-[0.3em] italic">Select Date</span>
+             <span className="text-[10px] mono uppercase text-accent font-black tracking-[0.3em] italic">Telemetry Date</span>
              <input 
                type="date" 
                value={selectedDate} 
@@ -176,7 +177,7 @@ export default function NutritionPage() {
              />
            </div>
            <div className="text-right">
-             <span className="text-[10px] mono uppercase text-muted font-black tracking-widest block opacity-50">Total Calories</span>
+             <span className="text-[10px] mono uppercase text-muted font-black tracking-widest block opacity-50">Energy Total</span>
              <span className="text-3xl font-black mono text-accent italic">{totals.calories} <span className="text-xs">KCAL</span></span>
            </div>
         </div>
@@ -188,11 +189,11 @@ export default function NutritionPage() {
         </div>
       </section>
 
-      {/* ── SEARCH FOODS ──────────────── */}
+      {/* ── FOOD INJECTION (FDC) ──────────────── */}
       <section className="space-y-6 pt-4">
         <div className="flex items-center gap-4">
           <span className="mono text-[10px] text-accent tracking-[0.2em] font-black italic">01</span>
-          <h2 className="syne font-black uppercase text-sm tracking-widest italic">Search Common Foods</h2>
+          <h2 className="syne font-black uppercase text-sm tracking-widest italic">Global Food Database</h2>
           <div className="flex-1 h-px bg-gradient-to-r from-border to-transparent"></div>
         </div>
 
@@ -202,7 +203,7 @@ export default function NutritionPage() {
                  type="text"
                  value={query}
                  onChange={(e) => setQuery(e.target.value)}
-                 placeholder="Search food database..."
+                 placeholder="Search Telemetry Database..."
                  className="input-field flex-1 bg-surface font-black mono italic"
                  onKeyDown={(e) => e.key === 'Enter' && handleSearch(e)}
                />
@@ -221,7 +222,7 @@ export default function NutritionPage() {
                      >
                        <div className="space-y-0.5">
                          <span className="text-[10px] font-black syne uppercase block group-hover:text-accent tracking-tighter">{food.description}</span>
-                         <span className="text-[8px] mono text-muted uppercase font-black tracking-tighter opacity-60">{food.brandOwner || "General"}</span>
+                         <span className="text-[8px] mono text-muted uppercase font-black tracking-tighter opacity-60">{food.brandOwner || "Unbranded"}</span>
                        </div>
                        <svg className="w-4 h-4 text-muted group-hover:text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="9 18 15 12 9 6"/></svg>
                      </button>
@@ -239,7 +240,7 @@ export default function NutritionPage() {
                    </div>
                    <div className="flex gap-4 items-end">
                       <div className="space-y-1 flex-1">
-                        <label className="text-[8px] mono uppercase text-muted font-black tracking-[0.2em] italic ml-1">Grams</label>
+                        <label className="text-[8px] mono uppercase text-muted font-black tracking-[0.2em] italic ml-1">Quantity (Grams)</label>
                         <input 
                           type="number" 
                           value={manualForm.grams} 
@@ -247,7 +248,7 @@ export default function NutritionPage() {
                           className="input-field py-3 font-black mono text-accent2 bg-surface2/50 text-base"
                         />
                       </div>
-                      <button onClick={handleFDCLog} className="btn btn-primary py-2 px-6 text-[9px] uppercase font-black italic tracking-widest h-10">
+                      <button onClick={handleFDCLog} className="btn btn-primary py-4 px-8 text-[10px] uppercase font-black italic tracking-widest h-auto">
                         Log Entry
                       </button>
                    </div>
@@ -256,23 +257,23 @@ export default function NutritionPage() {
         </div>
       </section>
 
-      {/* ── MANUAL LOG ──────────────── */}
+      {/* ── MANUAL PROTOCOL ──────────────── */}
       <section className="space-y-6">
         <div className="flex items-center gap-4">
           <span className="mono text-[10px] text-accent tracking-[0.2em] font-black italic">02</span>
-          <h2 className="syne font-black uppercase text-sm tracking-widest italic">Log Food Manually</h2>
+          <h2 className="syne font-black uppercase text-sm tracking-widest italic">Manual Protocol injection</h2>
           <div className="flex-1 h-px bg-gradient-to-r from-border to-transparent"></div>
         </div>
 
         <form onSubmit={handleManualLog} className="card p-6 border-border/40 bg-surface/50 space-y-6">
            <div className="grid sm:grid-cols-2 gap-4">
               <div className="space-y-2 flex-1">
-                 <label className="text-[8px] mono uppercase text-muted font-black tracking-widest opacity-60 ml-1 italic">Type Food Name</label>
+                 <label className="text-[8px] mono uppercase text-muted font-black tracking-widest opacity-60 ml-1 italic">Item Name</label>
                  <input 
                    type="text" 
                    value={manualForm.name} 
                    onChange={e => setManualForm({...manualForm, name: e.target.value})}
-                   placeholder="E.g. Banana..."
+                   placeholder="Manual Entry Name..."
                    className="input-field bg-white/5 py-3"
                  />
               </div>
@@ -295,23 +296,23 @@ export default function NutritionPage() {
            </div>
 
            <button type="submit" className="btn btn-outline py-4 w-full text-[10px] font-black uppercase tracking-[0.2em] italic border-accent/20 text-accent hover:bg-accent hover:text-white transition-all">
-             Log This Food
+             Transmit Manual Fuel Log
            </button>
         </form>
       </section>
 
-      {/* ── DAILY LOG ──────────────── */}
+      {/* ── LOGGED FEED ──────────────── */}
       <section className="space-y-6">
         <div className="flex items-center gap-4">
           <span className="mono text-[10px] text-muted tracking-[0.2em] font-black italic">03</span>
-          <h2 className="syne font-black uppercase text-sm tracking-widest italic text-muted">Daily Food Log</h2>
+          <h2 className="syne font-black uppercase text-sm tracking-widest italic text-muted">Daily Log Feed</h2>
           <div className="flex-1 h-px bg-gradient-to-r from-border/20 to-transparent"></div>
         </div>
 
         <div className="space-y-3">
           {foodItems.length === 0 && (
             <div className="text-center py-12 border-2 border-dashed border-border/20 rounded-2xl">
-               <span className="text-[10px] text-muted mono uppercase italic font-black">Empty log for this date</span>
+               <span className="text-[10px] text-muted mono uppercase italic font-black">No fuel logs found for this date telemetry</span>
             </div>
           )}
           {foodItems.map((item) => (
@@ -319,7 +320,7 @@ export default function NutritionPage() {
                <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-[10px] mono text-accent font-black italic">{item.grams}g</span>
-                    <h4 className="text-xs font-black syne uppercase tracking-tight truncate border-l border-border/40 pl-2 text-text">{item.food_name}</h4>
+                    <h4 className="text-xs font-black syne uppercase tracking-tight truncate border-l border-border/40 pl-2">{item.food_name}</h4>
                   </div>
                   <div className="flex gap-4 text-[9px] mono text-muted font-black uppercase opacity-60">
                      <span>{item.calories} Kcal</span>
