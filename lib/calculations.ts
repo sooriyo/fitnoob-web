@@ -9,6 +9,15 @@ import type {
 
 // ── Scientific Calculations ──────────────────
 
+export const calculateAge = (birthDate: string): number => {
+  const birth = new Date(birthDate)
+  const today = new Date()
+  let age = today.getFullYear() - birth.getFullYear()
+  const m = today.getMonth() - birth.getMonth()
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--
+  return age
+}
+
 export const ACTIVITY_MULTIPLIERS = {
   sedentary: 1.2,
   light: 1.375,
@@ -17,7 +26,8 @@ export const ACTIVITY_MULTIPLIERS = {
   extra: 1.9
 }
 
-export const calcBMR = (weight: number, height: number, age: number, sex: Profile['sex']): number => {
+export const calcBMR = (weight: number, height: number, birthDate: string, sex: Profile['sex']): number => {
+  const age = calculateAge(birthDate)
   const bmr = (10 * weight) + (6.25 * height) - (5 * age)
   if (sex === 'male') return bmr + 5
   if (sex === 'female') return bmr - 161
@@ -28,15 +38,13 @@ export const calcTDEE = (bmr: number, activity: Profile['activity_level']): numb
   return bmr * ACTIVITY_MULTIPLIERS[activity]
 }
 
-export const suggestMacros = (weight: number, tdee: number, goal: Profile['goal']) => {
-  let calories = tdee
+export const suggestMacrosByDeficit = (weight: number, tdee: number, goal: Profile['goal'], delta: number) => {
+  const calories = tdee + delta
   let proteinMultiplier = 1.8 // g/kg
 
   if (goal === 'fat-burn') {
-    calories = tdee - 500
     proteinMultiplier = 2.2 // Higher protein for muscle preservation
   } else if (goal === 'gain') {
-    calories = tdee + 300
     proteinMultiplier = 1.8
   }
 
@@ -48,8 +56,34 @@ export const suggestMacros = (weight: number, tdee: number, goal: Profile['goal'
     calories: Math.round(calories),
     protein, 
     carbs, 
-    fat 
+    fat,
+    delta 
   }
+}
+
+export const suggestPlanOptions = (weight: number, tdee: number, goal: Profile['goal']) => {
+  if (goal === 'fat-burn') {
+    return [
+      { id: 'sustainable', label: 'Sustainable', delta: -300, desc: 'Slow & steady. Best for long-term adherence.' },
+      { id: 'balanced', label: 'Balanced', delta: -500, desc: 'Standard 0.5kg/week loss. Optimized for most.' },
+      { id: 'aggressive', label: 'Aggressive', delta: -750, desc: 'Rapid results. Requires high mental discipline.' },
+    ].map(opt => ({ ...opt, ...suggestMacrosByDeficit(weight, tdee, goal, opt.delta) }))
+  } else if (goal === 'gain') {
+    return [
+      { id: 'lean', label: 'Lean Bulk', delta: 150, desc: 'Minimise fat gain. Focus on quality tissue.' },
+      { id: 'balanced', label: 'Balanced', delta: 300, desc: 'Optimal muscle growth with moderate surplus.' },
+      { id: 'aggressive', label: 'Aggressive', delta: 500, desc: 'Maximum growth potential. Higher fat risk.' },
+    ].map(opt => ({ ...opt, ...suggestMacrosByDeficit(weight, tdee, goal, opt.delta) }))
+  } else {
+    return [
+      { id: 'maintenance', label: 'Maintenance', delta: 0, desc: 'Stay at baseline. Body recomposition focus.' }
+    ].map(opt => ({ ...opt, ...suggestMacrosByDeficit(weight, tdee, goal, opt.delta) }))
+  }
+}
+
+export const suggestMacros = (weight: number, tdee: number, goal: Profile['goal']) => {
+  const delta = goal === 'fat-burn' ? -500 : (goal === 'gain' ? 300 : 0)
+  return suggestMacrosByDeficit(weight, tdee, goal, delta)
 }
 
 // ── Helpers ──────────────────────────────

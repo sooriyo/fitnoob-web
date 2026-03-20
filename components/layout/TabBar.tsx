@@ -18,71 +18,67 @@ export default function TabBar() {
   // Hide on onboarding
   if (pathname.includes("/onboarding") || !user) return null;
 
+  const tabs = [
+    {
+      label: "Telemetry",
+      href: "/dashboard",
+      icon: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" />
+        </svg>
+      )
+    },
+    {
+      label: "Nutrition",
+      href: "/nutrition",
+      icon: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M18 8h1a4 4 0 0 1 0 8h-1" /><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" /><line x1="6" y1="1" x2="6" y2="4" /><line x1="10" y1="1" x2="10" y2="4" /><line x1="14" y1="1" x2="14" y2="4" />
+        </svg>
+      )
+    },
+    {
+      label: "Fitness",
+      href: "/log",
+      icon: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="4" r="2"/><path d="M15 8a1 1 0 0 0-1-1H10a1 1 0 0 0-1 1v2a1 1 0 0 1-1 1H7M15 8v4a1 1 0 0 0 1 1h2M9 15v4a1 1 0 0 0 1 1h2"/><path d="M15 13l-3-4-2 2-3-4"/>
+        </svg>
+      )
+    }
+  ];
+
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-surface/80 backdrop-blur-xl border-t border-border px-8 pb-8 pt-4 z-50">
-      <div className="max-w-md mx-auto flex items-center justify-between relative">
-        <Link
-          href="/log"
-          className={cn(
-            "flex flex-col items-center gap-1 group",
-            pathname === "/log" ? "text-accent" : "text-muted hover:text-text"
-          )}
-        >
-          <div className="p-2 rounded-xl transition-colors group-active:scale-95">
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+    <nav className="fixed bottom-0 left-0 right-0 bg-bg/80 backdrop-blur-2xl border-t border-border/40 px-4 pb-6 pt-4 z-50">
+      <div className="max-w-md mx-auto flex items-center justify-between px-4">
+        {tabs.map((tab) => {
+          const isActive = pathname === tab.href;
+          return (
+            <Link
+              key={tab.href}
+              href={tab.href}
+              className={cn(
+                "flex flex-col items-center gap-1.5 group transition-all flex-1",
+                isActive ? "text-accent scale-110" : "text-muted hover:text-text"
+              )}
             >
-              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-              <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-            </svg>
-          </div>
-          <span className="text-[10px] mono uppercase font-bold tracking-widest">Log</span>
-        </Link>
-
-        {/* Center Weight Display */}
-        {profile?.start_weight && (
-          <div className="absolute left-1/2 -translate-x-1/2 -top-1">
-            <div className="bg-surface2 border border-border px-3 py-1 rounded-full shadow-lg">
-              <span className="text-xs mono font-bold text-accent2">
-                {profile.start_weight}
-                <span className="text-[8px] ml-0.5 opacity-60">KG</span>
+              <div className={cn(
+                "p-2.5 rounded-2xl transition-all duration-300",
+                isActive && "bg-accent/10 shadow-[0_0_20px_rgba(255,95,31,0.15)] ring-1 ring-accent/20"
+              )}>
+                <div className={cn(isActive && "drop-shadow-[0_0_8px_rgba(255,95,31,0.6)]")}>
+                  {tab.icon}
+                </div>
+              </div>
+              <span className={cn(
+                "text-[9px] mono uppercase font-black tracking-[0.2em] italic",
+                isActive ? "opacity-100" : "opacity-40"
+              )}>
+                {tab.label}
               </span>
-            </div>
-          </div>
-        )}
-
-        <Link
-          href="/dashboard"
-          className={cn(
-            "flex flex-col items-center gap-1 group",
-            pathname === "/dashboard" ? "text-accent" : "text-muted hover:text-text"
-          )}
-        >
-          <div className="p-2 rounded-xl transition-colors group-active:scale-95">
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <line x1="18" y1="20" x2="18" y2="10" />
-              <line x1="12" y1="20" x2="12" y2="4" />
-              <line x1="6" y1="20" x2="6" y2="14" />
-            </svg>
-          </div>
-          <span className="text-[10px] mono uppercase font-bold tracking-widest">Dash</span>
-        </Link>
+            </Link>
+          );
+        })}
       </div>
     </nav>
   );

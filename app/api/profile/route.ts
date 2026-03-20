@@ -26,6 +26,12 @@ export async function PUT(req: NextRequest) {
     const user = await account.get();
     const data = await req.json();
 
+    // Sanitize data: Remove Appwrite system fields if present
+    const sanitizedData = Object.keys(data).reduce((acc: any, key) => {
+      if (!key.startsWith('$')) acc[key] = data[key];
+      return acc;
+    }, {});
+
     const existingResult = await databases.listDocuments(DB_ID, PROFILE_COL, [
       Query.equal("user_id", user.$id),
     ]);
@@ -35,18 +41,19 @@ export async function PUT(req: NextRequest) {
     if (existingResult.total > 0) {
       const doc = existingResult.documents[0];
       profile = await databases.updateDocument(DB_ID, PROFILE_COL, doc.$id, {
-        ...data,
+        ...sanitizedData,
         user_id: user.$id,
       }) as unknown as Profile;
     } else {
       profile = await databases.createDocument(DB_ID, PROFILE_COL, ID.unique(), {
-        ...data,
+        ...sanitizedData,
         user_id: user.$id,
       }) as unknown as Profile;
     }
 
     return NextResponse.json(profile);
   } catch (error: any) {
+    console.error("Profile API Error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

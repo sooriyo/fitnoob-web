@@ -24,3 +24,5 @@ export const DB_ID          = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID!
 export const ENTRIES_COL    = process.env.NEXT_PUBLIC_APPWRITE_ENTRIES_COL!
 export const PROFILE_COL    = process.env.NEXT_PUBLIC_APPWRITE_PROFILE_COL!
 export const STORAGE_BUCKET = process.env.NEXT_PUBLIC_APPWRITE_BUCKET_ID!
+export const FOOD_LOGS_COL  = 'food_logs';
+

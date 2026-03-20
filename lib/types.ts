@@ -27,11 +27,13 @@ export interface Profile {
   start_date: string     // "YYYY-MM-DD"
   
   // Biological Metrics
-  age: number
+  birth_date: string     // "YYYY-MM-DD"
   sex: 'male' | 'female' | 'other'
   height: number         // cm
   activity_level: 'sedentary' | 'light' | 'moderate' | 'very' | 'extra'
   goal: 'fat-burn' | 'maintain' | 'gain'
+  body_fat?: number      // optional %
+  waist_cm?: number      // optional cm
   
   // Calculated Targets
   target_calories: number
@@ -138,4 +140,15 @@ export interface ImportRow {
   workout_day?: string
   workout_done?: string | boolean
   notes?: string
+}
+export interface FoodLog {
+  $id?: string
+  user_id: string
+  date: string
+  food_name: string
+  calories: number
+  protein: number
+  carbs: number
+  fat: number
+  grams: number
 }

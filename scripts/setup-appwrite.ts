@@ -1,4 +1,4 @@
-import { Client, Databases, Storage, ID } from 'node-appwrite';
+import { Client, Databases, Storage, ID, Permission, Role } from 'node-appwrite';
 import fs from 'fs';
 import path from 'path';
 
@@ -27,6 +27,13 @@ const BUCKET_ID = env.NEXT_PUBLIC_APPWRITE_BUCKET_ID || 'progress-photos';
 async function setup() {
   console.log('🚀 Starting Appwrite Setup...');
 
+  const collPermissions = [
+    Permission.read(Role.users()),
+    Permission.create(Role.users()),
+    Permission.update(Role.users()),
+    Permission.delete(Role.users()),
+  ];
+
   try {
     // 1. Create Database
     try {
@@ -39,26 +46,33 @@ async function setup() {
 
     // 2. Create Entries Collection
     try {
-      await databases.createCollection(DB_ID, ENTRIES_COL, 'Daily Entries');
+      await databases.createCollection(DB_ID, ENTRIES_COL, 'Daily Entries', collPermissions);
       console.log('✅ Collection created:', ENTRIES_COL);
+    } catch (e: any) {
+      if (e.code === 409) {
+        console.log('ℹ️ Entries collection already exists, updating permissions...');
+        await databases.updateCollection(DB_ID, ENTRIES_COL, 'Daily Entries', collPermissions);
+      } else throw e;
+    }
 
-      // Attributes for Entries
-      const attrs = [
-        { key: 'date', type: 'string', size: 10, required: true },
-        { key: 'weight', type: 'double', required: false },
-        { key: 'body_fat', type: 'double', required: false },
-        { key: 'calories', type: 'integer', required: false },
-        { key: 'protein', type: 'integer', required: false },
-        { key: 'carbs', type: 'integer', required: false },
-        { key: 'fat', type: 'integer', required: false },
-        { key: 'walk_km', type: 'double', required: false },
-        { key: 'workout_day', type: 'string', size: 50, required: false },
-        { key: 'workout_done', type: 'boolean', required: false },
-        { key: 'notes', type: 'string', size: 5000, required: false },
-        { key: 'user_id', type: 'string', size: 36, required: true },
-      ];
+    // Attributes for Entries
+    const entryAttrs = [
+      { key: 'date', type: 'string', size: 10, required: true },
+      { key: 'weight', type: 'double', required: false },
+      { key: 'body_fat', type: 'double', required: false },
+      { key: 'calories', type: 'integer', required: false },
+      { key: 'protein', type: 'integer', required: false },
+      { key: 'carbs', type: 'integer', required: false },
+      { key: 'fat', type: 'integer', required: false },
+      { key: 'walk_km', type: 'double', required: false },
+      { key: 'workout_day', type: 'string', size: 50, required: false },
+      { key: 'workout_done', type: 'boolean', required: false },
+      { key: 'notes', type: 'string', size: 5000, required: false },
+      { key: 'user_id', type: 'string', size: 36, required: true },
+    ];
 
-      for (const attr of attrs) {
+    for (const attr of entryAttrs) {
+      try {
         if (attr.type === 'string') {
           await databases.createStringAttribute(DB_ID, ENTRIES_COL, attr.key, attr.size!, attr.required);
         } else if (attr.type === 'double') {
@@ -68,27 +82,38 @@ async function setup() {
         } else if (attr.type === 'boolean') {
           await databases.createBooleanAttribute(DB_ID, ENTRIES_COL, attr.key, attr.required);
         }
-        console.log(`  🔹 Attribute created: ${attr.key}`);
+        console.log(`  🔹 Entry Attribute created: ${attr.key}`);
+      } catch (e: any) {
+        if (e.code === 409) console.log(`  ℹ️ Entry Attribute ${attr.key} already exists`);
+        else throw e;
       }
-      
-      // Indexes
+    }
+    
+    // Indexes
+    try {
       // @ts-ignore
       await databases.createIndex(DB_ID, ENTRIES_COL, 'idx_user_date', 'key', ['user_id', 'date'], ['ASC', 'ASC']);
-      console.log('  🎯 Index created: user_id + date');
-
+      console.log('  🎯 Entry Index created: user_id + date');
     } catch (e: any) {
-      if (e.code === 409) console.log('ℹ️ Entries collection already exists');
-      else throw e;
+      if (e.code === 409) console.log('  ℹ️ Entry Index already exists');
     }
 
     // 3. Create Profile Collection
     try {
-      await databases.createCollection(DB_ID, PROFILE_COL, 'User Profiles');
+      await databases.createCollection(DB_ID, PROFILE_COL, 'User Profiles', collPermissions);
       console.log('✅ Collection created:', PROFILE_COL);
     } catch (e: any) {
-      if (e.code === 409) console.log('ℹ️ Profile collection already exists');
-      else throw e;
+      if (e.code === 409) {
+        console.log('ℹ️ Profile collection already exists, updating permissions...');
+        await databases.updateCollection(DB_ID, PROFILE_COL, 'User Profiles', collPermissions);
+      } else throw e;
     }
+
+    // Cleanup old attributes if they exist
+    try {
+      await databases.deleteAttribute(DB_ID, PROFILE_COL, 'age');
+      console.log('  🗑️ Removed legacy attribute: age');
+    } catch (e) {}
 
     const profileAttrs = [
       { key: 'user_id', type: 'string', size: 36, required: true },
@@ -96,13 +121,13 @@ async function setup() {
       { key: 'start_weight', type: 'double', required: true },
       { key: 'goal_weight', type: 'double', required: true },
       { key: 'start_date', type: 'string', size: 10, required: true },
-      
-      { key: 'age', type: 'integer', required: true },
+      { key: 'birth_date', type: 'string', size: 10, required: true },
       { key: 'sex', type: 'string', size: 10, required: true },
       { key: 'height', type: 'double', required: true },
       { key: 'activity_level', type: 'string', size: 20, required: true },
       { key: 'goal', type: 'string', size: 20, required: true },
-
+      { key: 'body_fat', type: 'double', required: false },
+      { key: 'waist_cm', type: 'double', required: false },
       { key: 'target_calories', type: 'integer', required: true },
       { key: 'target_protein', type: 'integer', required: true },
       { key: 'target_carbs', type: 'integer', required: true },
@@ -121,9 +146,9 @@ async function setup() {
         } else if (attr.type === 'boolean') {
           await databases.createBooleanAttribute(DB_ID, PROFILE_COL, attr.key, attr.required);
         }
-        console.log(`  🔹 Attribute created: ${attr.key}`);
+        console.log(`  🔹 Profile Attribute created: ${attr.key}`);
       } catch (e: any) {
-        if (e.code === 409) console.log(`  ℹ️ Attribute ${attr.key} already exists`);
+        if (e.code === 409) console.log(`  ℹ️ Profile Attribute ${attr.key} already exists`);
         else throw e;
       }
     }
@@ -131,15 +156,19 @@ async function setup() {
     try {
       // @ts-ignore
       await databases.createIndex(DB_ID, PROFILE_COL, 'idx_user', 'unique', ['user_id'], ['ASC']);
-      console.log('  🎯 Unique Index created: user_id');
+      console.log('  🎯 Profile Unique Index created: user_id');
     } catch (e: any) {
-      if (e.code === 409) console.log('  ℹ️ Index idx_user already exists');
-      else throw e;
+      if (e.code === 409) console.log('  ℹ️ Profile Index idx_user already exists');
     }
 
     // 4. Create Bucket
     try {
-      await storage.createBucket(BUCKET_ID, 'Progress Photos', ['read("users")', 'write("users")'], false);
+      await storage.createBucket(BUCKET_ID, 'Progress Photos', [
+        Permission.read(Role.users()),
+        Permission.create(Role.users()),
+        Permission.update(Role.users()),
+        Permission.delete(Role.users()),
+      ], false);
       console.log('✅ Bucket created:', BUCKET_ID);
     } catch (e: any) {
       if (e.code === 409) console.log('ℹ️ Bucket already exists');

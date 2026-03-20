@@ -13,6 +13,7 @@ interface AuthContextType {
   login: (email: string, pass: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshProfile: () => Promise<void>;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -40,22 +41,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (e) {
       setUser(null);
       setProfile(null);
-      // Only redirect to onboarding if not already there or at root
-      if (pathname !== "/onboarding" && pathname !== "/login" && pathname !== "/") {
-        router.push("/onboarding");
-      }
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    // Ping Appwrite server to verify setup (only if method exists)
-    // @ts-ignore
-    if (typeof client.ping === 'function') {
-      // @ts-ignore
-      client.ping().catch((err: any) => console.log('Ping failed:', err));
-    }
     fetchUserAndProfile();
   }, [pathname]);
 
@@ -66,7 +57,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (err.code !== 401 && err.code !== 409) {
         throw err;
       }
-      // If error is 'session already active', just proceed
     }
     await fetchUserAndProfile();
     router.push("/log");
@@ -80,17 +70,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const refreshProfile = async () => {
-    if (!user) return;
-    const pResult = await databases.listDocuments(DB_ID, PROFILE_COL, [
-      Query.equal("user_id", user.$id),
-    ]);
-    if (pResult.total > 0) {
-      setProfile(pResult.documents[0] as unknown as Profile);
-    }
+    await fetchUserAndProfile();
   };
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, login, logout, refreshProfile }}>
+    <AuthContext.Provider value={{ user, profile, loading, login, logout, refreshProfile, refreshUser: fetchUserAndProfile }}>
       {children}
     </AuthContext.Provider>
   );
