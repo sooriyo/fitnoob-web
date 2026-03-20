@@ -7,6 +7,51 @@ import type {
   MacroCompliance, Projection, Finding, DashboardData
 } from './types'
 
+// ── Scientific Calculations ──────────────────
+
+export const ACTIVITY_MULTIPLIERS = {
+  sedentary: 1.2,
+  light: 1.375,
+  moderate: 1.55,
+  very: 1.725,
+  extra: 1.9
+}
+
+export const calcBMR = (weight: number, height: number, age: number, sex: Profile['sex']): number => {
+  const bmr = (10 * weight) + (6.25 * height) - (5 * age)
+  if (sex === 'male') return bmr + 5
+  if (sex === 'female') return bmr - 161
+  return bmr - 78 // Average of +5 and -161
+}
+
+export const calcTDEE = (bmr: number, activity: Profile['activity_level']): number => {
+  return bmr * ACTIVITY_MULTIPLIERS[activity]
+}
+
+export const suggestMacros = (weight: number, tdee: number, goal: Profile['goal']) => {
+  let calories = tdee
+  let proteinMultiplier = 1.8 // g/kg
+
+  if (goal === 'fat-burn') {
+    calories = tdee - 500
+    proteinMultiplier = 2.2 // Higher protein for muscle preservation
+  } else if (goal === 'gain') {
+    calories = tdee + 300
+    proteinMultiplier = 1.8
+  }
+
+  const protein = Math.round(weight * proteinMultiplier)
+  const fat = Math.round((calories * 0.25) / 9) // 25% of calories from fat
+  const carbs = Math.round((calories - (protein * 4) - (fat * 9)) / 4)
+
+  return { 
+    calories: Math.round(calories),
+    protein, 
+    carbs, 
+    fat 
+  }
+}
+
 // ── Helpers ──────────────────────────────
 
 const daysBetween = (a: string, b: string): number => {

@@ -25,6 +25,15 @@ export interface Profile {
   start_weight: number
   goal_weight: number
   start_date: string     // "YYYY-MM-DD"
+  
+  // Biological Metrics
+  age: number
+  sex: 'male' | 'female' | 'other'
+  height: number         // cm
+  activity_level: 'sedentary' | 'light' | 'moderate' | 'very' | 'extra'
+  goal: 'fat-burn' | 'maintain' | 'gain'
+  
+  // Calculated Targets
   target_calories: number
   target_protein: number
   target_carbs: number

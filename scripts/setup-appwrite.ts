@@ -85,21 +85,33 @@ async function setup() {
     try {
       await databases.createCollection(DB_ID, PROFILE_COL, 'User Profiles');
       console.log('✅ Collection created:', PROFILE_COL);
+    } catch (e: any) {
+      if (e.code === 409) console.log('ℹ️ Profile collection already exists');
+      else throw e;
+    }
 
-      const profileAttrs = [
-        { key: 'user_id', type: 'string', size: 36, required: true },
-        { key: 'name', type: 'string', size: 100, required: true },
-        { key: 'start_weight', type: 'double', required: true },
-        { key: 'goal_weight', type: 'double', required: true },
-        { key: 'start_date', type: 'string', size: 10, required: true },
-        { key: 'target_calories', type: 'integer', required: true },
-        { key: 'target_protein', type: 'integer', required: true },
-        { key: 'target_carbs', type: 'integer', required: true },
-        { key: 'target_fat', type: 'integer', required: true },
-        { key: 'onboarding_done', type: 'boolean', required: true },
-      ];
+    const profileAttrs = [
+      { key: 'user_id', type: 'string', size: 36, required: true },
+      { key: 'name', type: 'string', size: 100, required: true },
+      { key: 'start_weight', type: 'double', required: true },
+      { key: 'goal_weight', type: 'double', required: true },
+      { key: 'start_date', type: 'string', size: 10, required: true },
+      
+      { key: 'age', type: 'integer', required: true },
+      { key: 'sex', type: 'string', size: 10, required: true },
+      { key: 'height', type: 'double', required: true },
+      { key: 'activity_level', type: 'string', size: 20, required: true },
+      { key: 'goal', type: 'string', size: 20, required: true },
 
-      for (const attr of profileAttrs) {
+      { key: 'target_calories', type: 'integer', required: true },
+      { key: 'target_protein', type: 'integer', required: true },
+      { key: 'target_carbs', type: 'integer', required: true },
+      { key: 'target_fat', type: 'integer', required: true },
+      { key: 'onboarding_done', type: 'boolean', required: true },
+    ];
+
+    for (const attr of profileAttrs) {
+      try {
         if (attr.type === 'string') {
           await databases.createStringAttribute(DB_ID, PROFILE_COL, attr.key, attr.size!, attr.required);
         } else if (attr.type === 'double') {
@@ -110,14 +122,18 @@ async function setup() {
           await databases.createBooleanAttribute(DB_ID, PROFILE_COL, attr.key, attr.required);
         }
         console.log(`  🔹 Attribute created: ${attr.key}`);
+      } catch (e: any) {
+        if (e.code === 409) console.log(`  ℹ️ Attribute ${attr.key} already exists`);
+        else throw e;
       }
+    }
 
+    try {
       // @ts-ignore
       await databases.createIndex(DB_ID, PROFILE_COL, 'idx_user', 'unique', ['user_id'], ['ASC']);
       console.log('  🎯 Unique Index created: user_id');
-
     } catch (e: any) {
-      if (e.code === 409) console.log('ℹ️ Profile collection already exists');
+      if (e.code === 409) console.log('  ℹ️ Index idx_user already exists');
       else throw e;
     }
 
