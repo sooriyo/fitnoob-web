@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { account, PROFILE_COL, databases, DB_ID, Query } from "@/lib/appwrite";
+import { account, PROFILE_COL, databases, DB_ID, Query, client } from "@/lib/appwrite";
 import { Models } from "appwrite";
 import { Profile } from "@/lib/types";
 import { useRouter, usePathname } from "next/navigation";
@@ -50,6 +50,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
+    // Ping Appwrite server to verify setup
+    // @ts-ignore
+    client.ping().catch((err: any) => console.log('Ping failed:', err));
     fetchUserAndProfile();
   }, [pathname]);
 
