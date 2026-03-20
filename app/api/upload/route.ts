@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { databases, DB_ID, ENTRIES_COL, Query, account, ID } from "@/lib/appwrite";
 import { Entry } from "@/lib/types";
+ 
+export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
   try {

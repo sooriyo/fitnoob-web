@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { databases, DB_ID, PROFILE_COL, Query, account, ID } from "@/lib/appwrite";
 import { Profile } from "@/lib/types";
+ 
+export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   try {
