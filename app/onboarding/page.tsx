@@ -7,6 +7,7 @@ import { Profile, MacroPreset } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { account, ID } from "@/lib/appwrite";
 import { clsx } from "clsx";
+import Link from "next/link";
 
 export default function OnboardingPage() {
   const [step, setStep] = useState(1);
@@ -49,17 +50,20 @@ export default function OnboardingPage() {
     setLoading(true);
     try {
       if (!user) {
-        // Create account or login
-        try {
-          await account.create(ID.unique(), email, password, identityData.name);
-        } catch (err) {
-          // If exists, just login
-        }
+        // Create new account
+        await account.create(ID.unique(), email, password, identityData.name);
+        // Login immediately after creation
         await account.createEmailPasswordSession(email, password);
+        await refreshProfile(); // Refresh to get the newly created user state
       }
       setStep(2);
     } catch (err: any) {
-      alert(err.message);
+      if (err.code === 409) {
+        alert("Account already exists. Please login instead.");
+        router.push("/login");
+      } else {
+        alert(err.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -208,8 +212,15 @@ export default function OnboardingPage() {
           </div>
 
           <button type="submit" className="btn btn-primary" disabled={loading}>
-            {loading ? "Processing..." : "Continue →"}
+            {loading ? "Creating account..." : "Initiate protocol →"}
           </button>
+
+          <div className="text-center text-xs mono text-muted">
+            Already a member?{" "}
+            <Link href="/login" className="text-accent hover:underline">
+              Login here
+            </Link>
+          </div>
         </form>
       )}
 

@@ -60,7 +60,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, [pathname]);
 
   const login = async (email: string, pass: string) => {
-    await account.createEmailPasswordSession(email, pass);
+    try {
+      await account.createEmailPasswordSession(email, pass);
+    } catch (err: any) {
+      if (err.code !== 401 && err.code !== 409) {
+        throw err;
+      }
+      // If error is 'session already active', just proceed
+    }
     await fetchUserAndProfile();
     router.push("/log");
   };
