@@ -1,0 +1,126 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #0a0a0f;
+  --surface: #111118;
+  --surface2: #16161f;
+  --border: #1e1e2e;
+  --accent: #ff5f1f;
+  --accent2: #ffb347;
+  --green: #39d98a;
+  --red: #ff4d6d;
+  --yellow: #ffd166;
+  --blue: #4cc9f0;
+  --text: #e8e8f0;
+  --muted: #6b6b80;
+}
+
+@theme {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface2: var(--surface2);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent2: var(--accent2);
+  --color-green: var(--green);
+  --color-red: var(--red);
+  --color-yellow: var(--yellow);
+  --color-blue: var(--blue);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+
+  --font-mono: var(--font-space-mono), "Space Mono", monospace;
+  --font-syne: var(--font-syne), "Syne", sans-serif;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-syne), sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@utility mono {
+  font-family: var(--font-space-mono), monospace;
+}
+
+@utility badge {
+  @apply px-2 py-0.5 rounded-full text-[10px] uppercase font-bold tracking-widest mono;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+
+@utility badge-good {
+  background: rgba(57, 217, 138, 0.1);
+  border-color: rgba(57, 217, 138, 0.2);
+  color: var(--green);
+}
+
+@utility badge-warn {
+  background: rgba(255, 209, 102, 0.1);
+  border-color: rgba(255, 209, 102, 0.2);
+  color: var(--yellow);
+}
+
+@utility badge-bad {
+  background: rgba(255, 77, 109, 0.1);
+  border-color: rgba(255, 77, 109, 0.2);
+  color: var(--red);
+}
+
+@utility badge-info {
+  background: rgba(76, 201, 240, 0.1);
+  border-color: rgba(76, 201, 240, 0.2);
+  color: var(--blue);
+}
+
+@utility badge-accent {
+  background: rgba(255, 95, 31, 0.1);
+  border-color: rgba(255, 95, 31, 0.2);
+  color: var(--accent);
+}
+
+@utility card {
+  @apply rounded-xl border border-border bg-surface p-4 transition-all;
+}
+
+@utility section-label {
+  @apply text-[10px] uppercase font-bold tracking-[0.2em] text-muted mb-4 block mono;
+}
+
+@utility input-field {
+  @apply w-full bg-surface2 border border-border rounded-lg px-4 py-3 text-sm focus:border-accent outline-none ring-0 transition-colors placeholder:text-muted/50 mono;
+}
+
+@utility btn {
+  @apply px-6 py-3 rounded-xl font-bold transition-all active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none text-center block w-full uppercase tracking-wider text-sm;
+}
+
+@utility btn-primary {
+  @apply bg-accent text-white hover:brightness-110;
+}
+
+@utility btn-outline {
+  @apply border border-border bg-transparent hover:bg-surface2 text-text;
+}
+
+@utility btn-ghost {
+  @apply bg-transparent hover:bg-surface2 text-muted hover:text-text;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
+}
